@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVA Pharma Career Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-left: auto;
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8fafc;
+            position: relative;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .bot .message-avatar {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .user .message-avatar {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            padding: 16px 20px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bot .message-bubble {
+            background: white;
+            color: #334155;
+            border-bottom-left-radius: 6px;
+        }
+
+        .user .message-bubble {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        .chat-input-container {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            resize: none;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            min-height: 50px;
+            max-height: 120px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .send-button {
+            padding: 15px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voice-button {
+            padding: 15px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+        .voice-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+
+        .voice-button.recording {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: recordPulse 1.5s infinite;
+        }
+
+        .voice-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes recordPulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .welcome-message h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #334155;
+        }
+
+        .welcome-message p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #fecaca;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+        .connection-status {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 14px;
+            border-bottom: 1px solid #fde68a;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+
+            .chat-header {
+                padding: 15px 20px;
+            }
+
+            .chat-messages {
+                padding: 20px;
+            }
+
+            .chat-input-container {
+                padding: 15px 20px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="connection-status" id="connectionStatus">
+            📡 Demo Mode - Backend server not connected. This is a UI demonstration.
+        </div>
+        
+        <div class="chat-header">
+            <div class="bot-avatar">💊</div>
+            <div class="header-info">
+                <h2>EVA Pharma Career Assistant</h2>
+                <p>Find your perfect pharmaceutical career opportunity</p>
+            </div>
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h3>Welcome to EVA Pharma Career Assistant! 👋</h3>
+                <p>I'm here to help you find the perfect career opportunity at EVA Pharma. Ask me about available positions, requirements, or anything related to careers in pharmaceuticals.</p>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="message-avatar">
+                <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">AI</div>
+            </div>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div id="errorContainer"></div>
+            <div class="input-wrapper">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your question about EVA Pharma careers..."
+                    rows="1"
+                ></textarea>
+                
+                <button class="voice-button" id="voiceButton" title="Click to record voice message">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                        <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </button>
+                
+                <button class="send-button" id="sendButton" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m22 2-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ChatBot {
+            constructor() {
+                // Demo mode - no backend required
+                this.demoMode = true;
+                this.apiUrl = 'https://49241f62cb61.ngrok-free.app/chat-text';
+                this.voiceApiUrl = 'https://49241f62cb61.ngrok-free.app/chat-voice';
+                this.isConnected = false;
+                this.isRecording = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.setupAutoResize();
+                this.toggleSendButton();
+                this.checkMicrophonePermission();
+                this.updateConnectionStatus();
+            }
+
+            updateConnectionStatus() {
+                const statusElement = document.getElementById('connectionStatus');
+                if (this.demoMode) {
+                    statusElement.innerHTML = '📡 Demo Mode - Backend server not connected. This is a UI demonstration.';
+                    statusElement.style.background = '#fef3c7';
+                    statusElement.style.color = '#92400e';
+                } else {
+                    statusElement.innerHTML = '✅ Connected to EVA Pharma Career Assistant';
+                    statusElement.style.background = '#d1fae5';
+                    statusElement.style.color = '#065f46';
+                }
+            }
+
+            bindEvents() {
+                const messageInput = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                const voiceButton = document.getElementById('voiceButton');
+
+                messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                messageInput.addEventListener('input', (e) => {
+                    this.toggleSendButton();
+                });
+
+                sendButton.addEventListener('click', () => {
+                    this.sendMessage();
+                });
+
+                voiceButton.addEventListener('click', () => {
+                    this.toggleVoiceRecording();
+                });
+            }
+
+            setupAutoResize() {
+                const textarea = document.getElementById('messageInput');
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
+
+            toggleSendButton() {
+                const messageInput = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                
+                const hasMessage = messageInput.value.trim().length > 0;
+                sendButton.disabled = !hasMessage;
+            }
+
+            async checkMicrophonePermission() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (error) {
+                    console.log('Microphone access denied or not available');
+                    document.getElementById('voiceButton').disabled = true;
+                }
+            }
+
+            toggleVoiceRecording() {
+                if (this.isRecording) {
+                    this.stopRecording();
+                } else {
+                    this.startRecording();
+                }
+            }
+
+            async startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.mediaRecorder = new MediaRecorder(stream);
+                    this.audioChunks = [];
+
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        this.audioChunks.push(event.data);
+                    };
+
+                    this.mediaRecorder.onstop = () => {
+                        this.processRecording();
+                    };
+
+                    this.mediaRecorder.start();
+                    this.isRecording = true;
+
+                    const voiceButton = document.getElementById('voiceButton');
+                    voiceButton.classList.add('recording');
+                    voiceButton.title = 'Click to stop recording';
+
+                } catch (error) {
+                    this.showError('Failed to start recording: ' + error.message);
+                }
+            }
+
+            stopRecording() {
+                if (this.mediaRecorder && this.isRecording) {
+                    this.mediaRecorder.stop();
+                    this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    this.isRecording = false;
+
+                    const voiceButton = document.getElementById('voiceButton');
+                    voiceButton.classList.remove('recording');
+                    voiceButton.disabled = true;
+                    voiceButton.title = 'Processing...';
+                }
+            }
+
+            async processRecording() {
+                try {
+                    const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                    
+                    this.addVoiceMessage('Voice message sent', 'user', audioBlob);
+                    this.showTypingIndicator();
+
+                    if (this.demoMode) {
+                        // Demo response for voice
+                        setTimeout(() => {
+                            this.hideTypingIndicator();
+                            this.addMessage('Thank you for your voice message! In demo mode, I would process your audio and respond accordingly. For pharmaceutical careers at EVA Pharma, what specific role are you interested in?', 'bot');
+                        }, 2000);
+                    } else {
+                        const response = await this.sendVoiceMessage(audioBlob);
+                        this.hideTypingIndicator();
+                        
+                        if (response instanceof Blob) {
+                            this.addVoiceMessage('Voice response received', 'bot', response);
+                        } else {
+                            this.addMessage(response, 'bot');
+                        }
+                    }
+
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    this.addMessage('Sorry, I encountered an error processing your voice message. Please try again.', 'bot');
+                    this.showError(`Voice processing error: ${error.message}`);
+                } finally {
+                    const voiceButton = document.getElementById('voiceButton');
+                    voiceButton.disabled = false;
+                    voiceButton.title = 'Click to record voice message';
+                }
+            }
+
+            async sendVoiceMessage(audioBlob) {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'voice_message.wav');
+
+                const response = await fetch(this.voiceApiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (contentType && (contentType.includes('audio') || contentType.includes('octet-stream'))) {
+                    return await response.blob();
+                } else {
+                    const data = await response.json();
+                    return data.response || data.answer || data.message || data.text || data.reply || JSON.stringify(data);
+                }
+            }
+
+            showError(message) {
+                const errorContainer = document.getElementById('errorContainer');
+                errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+                setTimeout(() => {
+                    errorContainer.innerHTML = '';
+                }, 5000);
+            }
+
+            async sendMessage() {
+                const messageInput = document.getElementById('messageInput');
+                const message = messageInput.value.trim();
+
+                if (!message) return;
+
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                this.toggleSendButton();
+
+                this.addMessage(message, 'user');
+                this.showTypingIndicator();
+
+                try {
+                    let response;
+                    if (this.demoMode) {
+                        response = await this.getDemoResponse(message);
+                    } else {
+                        response = await this.callChatbotAPI(message);
+                    }
+                    
+                    this.hideTypingIndicator();
+                    this.addMessage(response, 'bot');
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    this.addMessage('Sorry, I encountered an error while processing your request. Please try again in a moment.', 'bot');
+                    this.showError(`Connection Error: Unable to reach the chatbot service.`);
+                }
+            }
+
+            async getDemoResponse(message) {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+                const lowerMessage = message.toLowerCase();
+                
+                if (lowerMessage.includes('position') || lowerMessage.includes('job') || lowerMessage.includes('career')) {
+                    return "At EVA Pharma, we have various exciting positions available including:\n\n• Clinical Research Associates\n• Medical Affairs Specialists\n• Regulatory Affairs Officers\n• Quality Assurance Analysts\n• Sales Representatives\n• Marketing Managers\n\nWhich area interests you most?";
+                } else if (lowerMessage.includes('requirement') || lowerMessage.includes('qualification')) {
+                    return "For pharmaceutical positions at EVA Pharma, typical requirements include:\n\n• Bachelor's degree in relevant field (Pharmacy, Medicine, Life Sciences)\n• 2-5 years experience (varies by position)\n• Strong analytical and communication skills\n• Knowledge of pharmaceutical regulations\n• Fluency in English and Arabic\n\nWould you like specific requirements for a particular role?";
+                } else if (lowerMessage.includes('salary') || lowerMessage.includes('benefit')) {
+                    return "EVA Pharma offers competitive compensation packages including:\n\n• Competitive base salary\n• Performance bonuses\n• Health insurance\n• Professional development opportunities\n• Career advancement programs\n\nSpecific salary ranges depend on the position and experience level. Would you like to know about a specific role?";
+                } else if (lowerMessage.includes('apply') || lowerMessage.includes('application')) {
+                    return "To apply for positions at EVA Pharma:\n\n1. Visit our careers page at eva-pharma.com\n2. Browse available positions\n3. Submit your CV and cover letter\n4. Complete our online assessment\n5. Attend interviews if selected\n\nI can help you prepare for any specific role. What position are you interested in?";
+                } else {
+                    return "Thank you for your interest in EVA Pharma careers! I can help you with information about:\n\n• Available positions\n• Job requirements\n• Application process\n• Company culture\n• Benefits and compensation\n\nWhat would you like to know more about?";
+                }
+            }
+
+            async callChatbotAPI(message) {
+                const response = await fetch(this.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data.response || data.answer || data.message || data.text || JSON.stringify(data);
+            }
+
+            addMessage(content, sender) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        ${sender === 'bot' ? 'AI' : 'You'}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ${this.formatMessage(content)}
+                        </div>
+                        <div class="message-time">${timeString}</div>
+                    </div>
+                `;
+
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+            }
+
+            addVoiceMessage(content, sender, audioBlob = null) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                let audioPlayer = '';
+                if (audioBlob) {
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayer = `<audio controls class="audio-player"><source src="${audioUrl}" type="audio/wav"></audio>`;
+                }
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        ${sender === 'bot' ? 'AI' : 'You'}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            🎵 ${content}
+                            ${audioPlayer}
+                        </div>
+                        <div class="message-time">${timeString}</div>
+                    </div>
+                `;
+
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.remove();
+                }
+            }
+
+            formatMessage(content) {
+                return content
+                    .replace(/\n/g, '<br>')
+                    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color: inherit; text-decoration: underline;">$1</a>');
+            }
+
+            showTypingIndicator() {
+                document.getElementById('typingIndicator').style.display = 'flex';
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            hideTypingIndicator() {
+                document.getElementById('typingIndicator').style.display = 'none';
+            }
+        }
+
+        // Initialize the chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChatBot();
+        });
+    </script>
+</body>
+</html>
+
+
+
+
