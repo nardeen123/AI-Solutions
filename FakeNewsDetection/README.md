@@ -3,33 +3,20 @@ This project focuses on detecting fake news articles using Natural Language Proc
 The solution applies preprocessing, feature engineering (TF-IDF), and multiple ML models to achieve high accuracy.
 
 ### 🛠️ Data Preprocessing
-
-Data cleaning: Removed nulls, duplicates, and empty text rows.
-
-Target mapping: Mapped label → Fake = 0, Real = 1.
-
-Text & title processing:
-
+##### Data cleaning: Removed nulls, duplicates, and empty text rows.
+##### Target mapping: Mapped label → Fake = 0, Real = 1.
+##### Text & title processing:
 Lowercasing
-
 Removing punctuation & stopwords
-
 Tokenization
-
 POS tagging & lemmatization
-
-Feature engineering:
-
+##### Feature engineering:
 Created lemmatized_text and lemmatized_title
-
 Combined into combined_text
-
 Applied TF-IDF vectorization
-
-Train-test split: 80% training / 20% testing
+##### Train-test split: 80% training / 20% testing
 
 ### 🤖 Models Used
-
 We implemented and compared multiple models:
 
 📊 Logistic Regression
