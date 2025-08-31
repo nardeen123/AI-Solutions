@@ -6,30 +6,19 @@ The solution applies preprocessing, feature engineering (TF-IDF), and multiple M
 ##### Data cleaning: Removed nulls, duplicates, and empty text rows.
 ##### Target mapping: Mapped label → Fake = 0, Real = 1.
 ##### Text & title processing:
-Lowercasing
-Removing punctuation & stopwords
-Tokenization
-POS tagging & lemmatization
+Lowercasing, Removing punctuation & stopwords, Tokenization, POS tagging & lemmatization
 ##### Feature engineering:
-Created lemmatized_text and lemmatized_title
-Combined into combined_text
-Applied TF-IDF vectorization
+Created lemmatized_text and lemmatized_title, Combined into combined_text, Applied TF-IDF vectorization
 ##### Train-test split: 80% training / 20% testing
 
 ### 🤖 Models Used
 We implemented and compared multiple models:
-
 📊 Logistic Regression
-
 🌳 Decision Tree
-
 ⚡ Passive Aggressive Classifier
-
 🧮 Naïve Bayes
-
 ✴️ Support Vector Classifier (SVC)
-
-Each model was evaluated with accuracy, confusion matrix, and classification reports.
+,Each model was evaluated with accuracy, confusion matrix, and classification reports.
 
 ### 📊 Results
 
