@@ -1,4 +1,4 @@
-💊 Drug Information Assistant
+## 💊 Drug Information Assistant
 
 An AI-powered Retrieval-Augmented Generation (RAG) system for answering drug-related queries.
 Built with LangChain, Python, LLMs, and Sentence Transformers, the assistant retrieves relevant medical knowledge and provides accurate, context-aware responses through a text-based interface.
