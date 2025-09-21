@@ -10,6 +10,7 @@ The system leverages **deep learning** and **computer vision** techniques to tra
 
 ## 🏆 Competition Performance
 This project was developed and submitted as part of a **Kaggle competition** on AI-generated vs real image identification.  
+competition Link: https://www.kaggle.com/competitions/detect-ai-vs-human-generated-images.
 
 - 📌 First public Kaggle competition  
 - 📊 Ranked **203 / 554 participants**  
